@@ -44,11 +44,19 @@ app.get('/login', (req, res) =>{
 
 
 app.post('/auth', (req, res) => {
-   console.log(req.body);
-   const isUser = false;
-   const {email, password} =req.body;
+        console.log(req.body);
+        const isUser = true;
+        const {email, password} = req.body;
 
-})
+        if(isUser){
+            res.redirect('/users');
+            return;
+        }
+        res.redirect('/login')
+    }
+);
+
+
 
 
 app.listen(PORT, ()=>{
