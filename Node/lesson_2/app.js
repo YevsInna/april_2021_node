@@ -4,6 +4,7 @@ const path = require("path");
 
 const {PORT} = require('./config/variables')
 const users = require('./db/users');
+const fs = require("fs");
 
 
 const app=express();
@@ -16,6 +17,12 @@ app.set('view engine', '.hbs');
 app.engine('.hbs', expressHbs({defaultLayout: false}))
 app.set('views', path.join(__dirname, 'static'));
 
+
+const pathUsers = path.join(__dirname, 'users.js');
+
+function getUser(){
+    return JSON.parse(fs.readFile(pathUsers));
+    }
 
 app.get('/',(req, res) => {
     console.log(req);
@@ -45,10 +52,10 @@ app.get('/login', (req, res) =>{
 
 app.post('/auth', (req, res) => {
         console.log(req.body);
-        const isUser = true;
         const {email, password} = req.body;
+        const user = getUser().find((user)=>user.email === email && user.password === password);
 
-        if(isUser){
+        if(user){
             res.redirect('/users');
             return;
         }
