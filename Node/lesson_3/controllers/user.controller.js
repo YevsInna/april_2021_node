@@ -1,21 +1,37 @@
-const db = require('../db/users');
+const { writeUserToFile, getUsersFromFile } = require('../services/user.servisces');
 
-module.exports= {
-    getSingleUser: (req, res) => {
-        const {user_id} = req.params
-        const user = db[user_id];
+module.exports = {
+    setNewUser: async (req, res) => {
+        const { email, password } = req.body;
+        const users = await getUsersFromFile();
+        const userIndex = users.findIndex((user) => user.email === email);
 
-        if (!user){
-            res.status(404).json('User is not found');
-            return
+        if (userIndex !== -1) {
+            res.json('This email exists');
+            return;
         }
-        res.json(user);
+
+        users.push({ email, password });
+        await writeUserToFile(users);
+        res.redirect('/auth');
     },
 
-    getAllUsers: (req, res) => {
+    getAllUsers: async (req, res) => {
+        const users = await getUsersFromFile();
+
+        res.json(users);
     },
 
-    createUser: (req, res) => {
-        res.json('Ok')
-    },
-}
+    getSingleUser: async (req, res) => {
+        const { user_id } = req.params;
+        const users = await getUsersFromFile();
+        const current_user = users[user_id];
+
+        if (!current_user) {
+            res.status(404).json('User is not found');
+            return;
+        }
+
+        res.json(current_user);
+    }
+};
